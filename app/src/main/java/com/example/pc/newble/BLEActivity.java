@@ -1,5 +1,7 @@
 package com.example.pc.newble;
 
+import android.Manifest;
+import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
@@ -8,11 +10,14 @@ import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothManager;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Environment;
 import android.os.Handler;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -29,6 +34,10 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.baidu.location.BDLocation;
+import com.baidu.location.BDLocationListener;
+import com.baidu.location.LocationClient;
+import com.baidu.location.LocationClientOption;
 import com.blankj.utilcode.util.ToastUtils;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.Legend;
@@ -97,6 +106,11 @@ public class BLEActivity extends AppCompatActivity {
     private final int LOW = 1;
 
     private LineChart mChart;
+
+    //引入定位所需要的代码
+    public LocationClient mLocationClientble;
+
+    private TextView positionTextble;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -127,9 +141,91 @@ public class BLEActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+//蓝牙所需
+        mLocationClientble = new LocationClient(getApplicationContext());
+        mLocationClientble.registerLocationListener(new MyLocationListenerble());
+        positionTextble = (TextView) findViewById(R.id.position_text_viewble);
+        positionTextble.setMovementMethod(ScrollingMovementMethod.getInstance());
+        List<String> permissionList = new ArrayList<>();
+        if (ContextCompat.checkSelfPermission(BLEActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            permissionList.add(Manifest.permission.ACCESS_FINE_LOCATION);
+        }
+        if (ContextCompat.checkSelfPermission(BLEActivity.this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
+            permissionList.add(Manifest.permission.READ_PHONE_STATE);
+        }
+        if (ContextCompat.checkSelfPermission(BLEActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            permissionList.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        }
+        if (!permissionList.isEmpty()) {
+            String [] permissions = permissionList.toArray(new String[permissionList.size()]);
+            ActivityCompat.requestPermissions(BLEActivity.this, permissions, 1);
+        } else {
+            requestLocation();
+        }
 
     }
 
+
+    //蓝牙需要方法
+    private void requestLocation() {
+        initLocation();
+        mLocationClientble.start();
+    }
+
+    private void initLocation(){
+        LocationClientOption option = new LocationClientOption();
+        option.setScanSpan(5000);
+        option.setIsNeedAddress(true);
+        mLocationClientble.setLocOption(option);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        switch (requestCode) {
+            case 1:
+                if (grantResults.length > 0) {
+                    for (int result : grantResults) {
+                        if (result != PackageManager.PERMISSION_GRANTED) {
+                            Toast.makeText(this, "必须同意所有权限才能使用本程序", Toast.LENGTH_SHORT).show();
+                            finish();
+                            return;
+                        }
+                    }
+                    requestLocation();
+                } else {
+                    Toast.makeText(this, "发生未知错误", Toast.LENGTH_SHORT).show();
+                    finish();
+                }
+                break;
+            default:
+        }
+    }
+
+    public class MyLocationListenerble implements BDLocationListener {
+
+        @Override
+        public void onReceiveLocation(BDLocation location) {
+            StringBuilder currentPosition = new StringBuilder();
+            currentPosition.append("时间：").append(location.getTime()).append("\n");
+            currentPosition.append("纬度：").append(location.getLatitude()).append("\n");
+            currentPosition.append("经线：").append(location.getLongitude()).append("\n");
+            currentPosition.append("国家：").append(location.getCountry()).append("\n");
+            currentPosition.append("省：").append(location.getProvince()).append("\n");
+            currentPosition.append("市：").append(location.getCity()).append("\n");
+            currentPosition.append("区：").append(location.getDistrict()).append("\n");
+            currentPosition.append("街道：").append(location.getStreet()).append("\n");
+            currentPosition.append("定位方式：");
+            if (location.getLocType() == BDLocation.TypeGpsLocation) {
+                currentPosition.append("GPS");
+            } else if (location.getLocType() == BDLocation.TypeNetWorkLocation) {
+                currentPosition.append("网络");
+            }
+            positionTextble.setText(currentPosition);
+
+
+        }
+
+    }
 
 
     //作图需要方法
@@ -771,7 +867,9 @@ public class BLEActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if(mBluetoothGatt!=null)
-        mBluetoothGatt.disconnect();
+        if(mBluetoothGatt!=null){
+        mBluetoothGatt.disconnect();}
+        mLocationClientble.stop();
     }
+
 }
