@@ -113,16 +113,14 @@ public class MainActivity extends AppCompatActivity {
                     case 0:
                         TargetClass = BLEActivity.class;
                         break;
+
                     case 1:
-                        TargetClass = RetrieveData.class;
-                        break;
-                    case 2:
                         TargetClass = ChooseHistActivity.class;
                         break;
-                    case 3:
+                    case 2:
                         TargetClass = LocationActivity.class;
                         break;
-                    case 4:
+                    case 3:
                         TargetClass = Location2Activity.class;
                         break;
                     default:
@@ -137,14 +135,14 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private List<String> getData() {
+    private List<String> getData() {   //条目
 
         List<String> data = new ArrayList<String>();
-        data.add("基础定位功能");
-        data.add("配置定位参数");
+        data.add("跳转蓝牙连接");
+        data.add("跳转查看记录");
         data.add("自定义回调示例");
         data.add("连续定位示例");
-        data.add("位置消息提醒");
+        data.add("跳转查看地理信息");
         data.add("室内定位功能");
         data.add("判断移动热点");
         data.add("android 8.0后台定位示例");

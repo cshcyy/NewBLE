@@ -72,7 +72,7 @@ public class BLEActivity extends AppCompatActivity {
     private BluetoothManager mBluetoothManager;
     private boolean isScaning=false;
     private boolean isConnecting=false;
-    private BluetoothGatt mBluetoothGatt;
+    public BluetoothGatt mBluetoothGatt;//改为public
     private String datautf8;
     private float  dataview;//用于画图
     private String j;
@@ -766,12 +766,12 @@ public class BLEActivity extends AppCompatActivity {
     @Override
     protected void onStop(){
         super.onStop();
-        mBluetoothGatt.disconnect();
+
     }
     @Override
     protected void onDestroy() {
         super.onDestroy();
-
-      //  mBluetoothGatt.disconnect();
+        if(mBluetoothGatt!=null)
+        mBluetoothGatt.disconnect();
     }
 }

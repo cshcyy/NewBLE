@@ -30,5 +30,7 @@ public class LocationApplication extends Application {
         mVibrator =(Vibrator)getApplicationContext().getSystemService(Service.VIBRATOR_SERVICE);
         SDKInitializer.initialize(getApplicationContext());
 
+
     }
+
 }
