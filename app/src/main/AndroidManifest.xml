@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.pc.newble">
+
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <uses-permission android:name="android.permission.BLUETOOTH_PRIVILEGED" />
@@ -33,21 +34,23 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ChooseHistActivity"></activity>
+        <activity android:name=".ChooseHistActivity" />
         <activity android:name=".RetrieveData">
-        <intent-filter>
-            <action android:name="android.intent.action.GET_CONTENT" />
+            <intent-filter>
+                <action android:name="android.intent.action.GET_CONTENT" />
 
-            <category android:name="android.intent.category.DEFAULT" />
-        </intent-filter>
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
         </activity>
 
         <service
             android:name="com.baidu.location.f"
             android:enabled="true"
-            android:process=":remote"></service>
+            android:process=":remote" />
 
-        <activity android:name=".BLEActivity"></activity>
+        <activity android:name=".BLEActivity" />
+        <activity android:name=".LocationActivity" />
+        <activity android:name=".Location2Activity"></activity>
     </application>
 
 </manifest>

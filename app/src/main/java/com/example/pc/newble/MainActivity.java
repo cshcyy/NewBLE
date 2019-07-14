@@ -1,14 +1,19 @@
 package com.example.pc.newble;
 
 import android.Manifest;
+import android.annotation.TargetApi;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -23,124 +28,128 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    public LocationClient mLocationClient;
-
-    private TextView positionText;
-
-
-
-
-
-
+    private final int SDK_PERMISSION_REQUEST = 127;
+    private ListView FunctionList;
+    private String permissionInfo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mLocationClient = new LocationClient(getApplicationContext());
-        mLocationClient.registerLocationListener(new MyLocationListener());
-
-
         setContentView(R.layout.activity_main);
+        FunctionList = (ListView) findViewById(R.id.functionList);
+        FunctionList
+                .setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_expandable_list_item_1, getData()));
 
+        // after andrioid m,must request Permiision on runtime
+        getPersimmions();
+    }
 
+    @TargetApi(23)
+    private void getPersimmions() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            ArrayList<String> permissions = new ArrayList<String>();
+            /***
+             * 定位权限为必须权限，用户如果禁止，则每次进入都会申请
+             */
+            // 定位精确位置
+            if(checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED){
+                permissions.add(Manifest.permission.ACCESS_FINE_LOCATION);
+            }
+            if(checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED){
+                permissions.add(Manifest.permission.ACCESS_COARSE_LOCATION);
+            }
+			/*
+			 * 读写权限和电话状态权限非必要权限(建议授予)只会申请一次，用户同意或者禁止，只会弹一次
+			 */
+            // 读写权限
+            if (addPermission(permissions, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                permissionInfo += "Manifest.permission.WRITE_EXTERNAL_STORAGE Deny \n";
+            }
+            // 读取电话状态权限
+            if (addPermission(permissions, Manifest.permission.READ_PHONE_STATE)) {
+                permissionInfo += "Manifest.permission.READ_PHONE_STATE Deny \n";
+            }
 
-        positionText = (TextView) findViewById(R.id.position_text_view);
-        List<String> permissionList = new ArrayList<>();
-        if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            permissionList.add(Manifest.permission.ACCESS_FINE_LOCATION);
+            if (permissions.size() > 0) {
+                requestPermissions(permissions.toArray(new String[permissions.size()]), SDK_PERMISSION_REQUEST);
+            }
         }
-        if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
-            permissionList.add(Manifest.permission.READ_PHONE_STATE);
+    }
+
+    @TargetApi(23)
+    private boolean addPermission(ArrayList<String> permissionsList, String permission) {
+        if (checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED) { // 如果应用没有获得对应权限,则添加到列表中,准备批量申请
+            if (shouldShowRequestPermissionRationale(permission)){
+                return true;
+            }else{
+                permissionsList.add(permission);
+                return false;
+            }
+
+        }else{
+            return true;
         }
-        if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            permissionList.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
-        }
-        if (!permissionList.isEmpty()) {
-            String [] permissions = permissionList.toArray(new String[permissionList.size()]);
-            ActivityCompat.requestPermissions(MainActivity.this, permissions, 1);
-        } else {
-            requestLocation();
-        }
-        Button button =findViewById(R.id.button);
-        button.setOnClickListener(new View.OnClickListener() {
+    }
+
+    @TargetApi(23)
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        // TODO Auto-generated method stub
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+    }
+
+    @Override
+    protected void onStart() {
+        // TODO Auto-generated method stub
+        super.onStart();
+        FunctionList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
             @Override
-            public void onClick(View view) {
-                Intent intent=new Intent(MainActivity.this,BLEActivity.class);
-                startActivity(intent);
+            public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
+                // TODO Auto-generated method stub
+                Class<?> TargetClass = null;
+                switch (arg2) {
+                    case 0:
+                        TargetClass = BLEActivity.class;
+                        break;
+                    case 1:
+                        TargetClass = RetrieveData.class;
+                        break;
+                    case 2:
+                        TargetClass = ChooseHistActivity.class;
+                        break;
+                    case 3:
+                        TargetClass = LocationActivity.class;
+                        break;
+                    case 4:
+                        TargetClass = Location2Activity.class;
+                        break;
+                    default:
+                        break;
+                }
+                if (TargetClass != null) {
+                    Intent intent = new Intent(MainActivity.this, TargetClass);
+                    intent.putExtra("from", 0);
+                    startActivity(intent);
+                }
             }
         });
     }
 
+    private List<String> getData() {
 
+        List<String> data = new ArrayList<String>();
+        data.add("基础定位功能");
+        data.add("配置定位参数");
+        data.add("自定义回调示例");
+        data.add("连续定位示例");
+        data.add("位置消息提醒");
+        data.add("室内定位功能");
+        data.add("判断移动热点");
+        data.add("android 8.0后台定位示例");
+        data.add("常见问题说明");
 
-    private void requestLocation() {
-        initLocation();
-        mLocationClient.start();
-    }
-
-    private void initLocation(){
-        LocationClientOption option = new LocationClientOption();
-        option.setScanSpan(5000);
-        option.setIsNeedAddress(true);
-        mLocationClient.setLocOption(option);
-    }
-
-
-
-
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        mLocationClient.stop();
-
-
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        switch (requestCode) {
-            case 1:
-                if (grantResults.length > 0) {
-                    for (int result : grantResults) {
-                        if (result != PackageManager.PERMISSION_GRANTED) {
-                            Toast.makeText(this, "必须同意所有权限才能使用本程序", Toast.LENGTH_SHORT).show();
-                            finish();
-                            return;
-                        }
-                    }
-                    requestLocation();
-                } else {
-                    Toast.makeText(this, "发生未知错误", Toast.LENGTH_SHORT).show();
-                    finish();
-                }
-                break;
-            default:
-        }
-    }
-
-    public class MyLocationListener extends BDAbstractLocationListener {
-
-        @Override
-        public void onReceiveLocation(BDLocation location) {
-            StringBuilder currentPosition = new StringBuilder();
-            currentPosition.append("纬度：").append(location.getLatitude()).append("\n");
-            currentPosition.append("经线：").append(location.getLongitude()).append("\n");
-            currentPosition.append("国家：").append(location.getCountry()).append("\n");
-            currentPosition.append("省：").append(location.getProvince()).append("\n");
-            currentPosition.append("市：").append(location.getCity()).append("\n");
-            currentPosition.append("区：").append(location.getDistrict()).append("\n");
-            currentPosition.append("街道：").append(location.getStreet()).append("\n");
-            currentPosition.append("定位方式：");
-            if (location.getLocType() == BDLocation.TypeGpsLocation) {
-                currentPosition.append("GPS");
-            } else if (location.getLocType() == BDLocation.TypeNetWorkLocation) {
-                currentPosition.append("网络");
-            }
-            positionText.setText(currentPosition);
-
-
-        }
-
+        return data;
     }
 }

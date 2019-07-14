@@ -763,10 +763,15 @@ public class BLEActivity extends AppCompatActivity {
         return sdcardDir.toString();
     }
     ////////////////////////////
-
+    @Override
+    protected void onStop(){
+        super.onStop();
+        mBluetoothGatt.disconnect();
+    }
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        mBluetoothGatt.disconnect();
+
+      //  mBluetoothGatt.disconnect();
     }
 }
