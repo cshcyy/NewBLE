@@ -25,6 +25,12 @@ import com.baidu.location.LocationClientOption;
 
 import java.util.ArrayList;
 import java.util.List;
+/**
+ * 为了寻找一些函数方便，LocationActivity，BaseStripAdapter,Utils,StripItem,StripListView之后可以删
+ * LocationApplication，locationservice，不删也不需要做改动
+ *
+ *
+ */
 
 public class MainActivity extends AppCompatActivity {
 

@@ -11,6 +11,12 @@ import android.widget.TextView;
 import com.baidu.location.BDAbstractLocationListener;
 import com.baidu.location.BDLocation;
 import com.baidu.location.Poi;
+/**
+ * 为了寻找一些函数方便，LocationActivity，BaseStripAdapter,Utils,StripItem,StripListView之后可以删
+ * LocationApplication，locationservice，不删也不需要做改动
+ *
+ *
+ */
 
 public class LocationActivity extends AppCompatActivity {
     private LocationService locationService;
