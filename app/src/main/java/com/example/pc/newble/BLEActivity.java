@@ -511,12 +511,17 @@ public class BLEActivity extends AppCompatActivity {
         reconnect.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if (mBluetoothAdapter==null||!mBluetoothAdapter.isEnabled()){
+                    Intent intent=new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);//判断蓝牙是否打开没打开的话，隐式调用打开系统开启蓝牙
+                    startActivityForResult(intent,0);
+                }
+                mBluetoothGatt.close();
                 bleListView.setVisibility(View.VISIBLE);//设备列表消失
                 operaView.setVisibility(View.GONE);//读取数据的列表出现
                 ivSerBleStatus.setVisibility(View.VISIBLE);
-                tvSerBleStatus.setVisibility(View.VISIBLE);
+
                 tvSerBindStatus.setVisibility(View.VISIBLE);
-                tvSerBindStatus.setText("已连接");
+                tvSerBindStatus.setText("未连接");
             }
         });
         bleListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {//？？？？
