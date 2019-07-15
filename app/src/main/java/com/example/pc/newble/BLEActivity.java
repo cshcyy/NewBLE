@@ -85,6 +85,7 @@ public class BLEActivity extends AppCompatActivity {
     private String datautf8;
     private float  dataview;//用于画图
     private String j;
+    private Button reconnect;//用于发现蓝牙断开后重连
 
     private String gettvResponse;
 
@@ -166,7 +167,7 @@ public class BLEActivity extends AppCompatActivity {
     }
 
 
-    //蓝牙需要方法
+    //定位需要方法
     private void requestLocation() {
         initLocation();
         mLocationClientble.start();
@@ -215,7 +216,7 @@ public class BLEActivity extends AppCompatActivity {
           //  currentPosition.append("区：").append(location.getDistrict()).append("\n");
           //  currentPosition.append("街道：").append(location.getStreet()).append("\n");
             currentPosition.append("地址： ").append(location.getAddrStr()).append("\n");// 地址信息
-            
+
             currentPosition.append("定位方式：");
             if (location.getLocType() == BDLocation.TypeGpsLocation) {
                 currentPosition.append("GPS");
@@ -432,6 +433,7 @@ public class BLEActivity extends AppCompatActivity {
         tvResponse=findViewById(R.id.tv_response);
         tvResponse.setMovementMethod(ScrollingMovementMethod.getInstance());//滚动
         tvResponse.setGravity(Gravity.BOTTOM);//滚到最后一行
+        reconnect= findViewById(R.id.reconnect_ble);
       /*  btnRead.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -504,6 +506,17 @@ public class BLEActivity extends AppCompatActivity {
                     checkPermissions();
                 }
 
+            }
+        });
+        reconnect.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                bleListView.setVisibility(View.VISIBLE);//设备列表消失
+                operaView.setVisibility(View.GONE);//读取数据的列表出现
+                ivSerBleStatus.setVisibility(View.VISIBLE);
+                tvSerBleStatus.setVisibility(View.VISIBLE);
+                tvSerBindStatus.setVisibility(View.VISIBLE);
+                tvSerBindStatus.setText("已连接");
             }
         });
         bleListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {//？？？？

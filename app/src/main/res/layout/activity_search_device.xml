@@ -85,6 +85,12 @@
                 android:layout_height="wrap_content"
                 android:text="存图像"
                 />
+            <Button
+                android:id="@+id/reconnect_ble"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="重连蓝牙"
+                />
         </LinearLayout>
         <TextView
             android:id="@+id/tv_response"
